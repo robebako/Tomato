@@ -8,6 +8,21 @@
 	#error "include 'pch.h' before including this file for PCH"
 #endif
 
+#if defined(_UNICODE) && !defined(UNICODE)
+#define UNICODE
+#endif
+#if defined(UNICODE) && !defined(_UNICODE)
+#define _UNICODE
+#endif
+
+#include <string>
+#include <sstream>
+#include <tchar.h>
+typedef std::basic_string<TCHAR> tstring;
+typedef std::basic_stringstream<TCHAR> tstringstream;
+
+#include <map>
+
 #include "resource.h"		// main symbols
 
 
@@ -18,6 +33,7 @@
 class CTomatoApp : public CWinApp
 {
 public:
+	std::map<CString, int> works;
 	CTomatoApp();
 
 // Overrides
