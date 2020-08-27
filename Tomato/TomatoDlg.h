@@ -31,4 +31,12 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CComboBox combo;
+	afx_msg void OnBnClickedButton2();
+	CEdit work_min_edit;
+	CEdit pause_min_edit;
+	int timer_mins, timer_secs=0;
+	CString strMin, strSec, m_strTimer;
+	CEdit timer_edit;
 };

@@ -7,6 +7,8 @@
 #include "Tomato.h"
 #include "TomatoDlg.h"
 #include "afxdialogex.h"
+#include "CSetIntervals.h"
+#include <cstring>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +54,7 @@ END_MESSAGE_MAP()
 
 CTomatoDlg::CTomatoDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_TOMATO_DIALOG, pParent)
+	, m_strTimer(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,12 +62,18 @@ CTomatoDlg::CTomatoDlg(CWnd* pParent /*=nullptr*/)
 void CTomatoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_COMBO1, combo);
+	DDX_Control(pDX, IDC_EDIT1, work_min_edit);
+	DDX_Control(pDX, IDC_EDIT2, pause_min_edit);
+	DDX_Text(pDX, IDC_EDIT3, m_strTimer);
+	DDX_Control(pDX, IDC_EDIT3, timer_edit);
 }
 
 BEGIN_MESSAGE_MAP(CTomatoDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON2, &CTomatoDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -100,6 +109,18 @@ BOOL CTomatoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
+	CString mins;
+	mins.Format(_T("%d"), pApp->work_interval);
+	work_min_edit.SetWindowTextW(mins);
+	mins.Format(_T("%d"), pApp->pause_interval);
+	pause_min_edit.SetWindowTextW(mins);
+
+	timer_mins = pApp->work_interval;
+	strMin.Format(_T("%d"), timer_mins);
+	strSec.Format(_T("0%d"), timer_secs);
+	m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+	timer_edit.SetWindowTextW(m_strTimer);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -153,3 +174,22 @@ HCURSOR CTomatoDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CTomatoDlg::OnBnClickedButton2()
+{
+	CSetIntervals dlg;
+	CTomatoApp* pApp=(CTomatoApp*)AfxGetApp();
+	dlg.work_interval = pApp->work_interval;
+	dlg.pause_interval = pApp->pause_interval;
+	if(dlg.DoModal() == IDOK) 
+	{
+		pApp->work_interval = dlg.work_interval;
+		pApp->pause_interval= dlg.pause_interval;
+		CString mins;
+		mins.Format(_T("%d"), pApp->work_interval);
+		work_min_edit.SetWindowTextW(mins);
+		mins.Format(_T("%d"), pApp->pause_interval);
+		pause_min_edit.SetWindowTextW(mins);
+	}
+}
