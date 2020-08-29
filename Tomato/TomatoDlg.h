@@ -34,11 +34,11 @@ protected:
 public:
 	CComboBox combo;
 	afx_msg void OnBnClickedButton2();
-	CEdit work_min_edit;
-	CEdit pause_min_edit;
+	CEdit work_min_edit, pause_min_edit;
 	int timer_mins, timer_secs=0;
 	CString strMin, strSec, m_strTimer;
 	CEdit timer_edit;
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnBnClickedButton3();
 };

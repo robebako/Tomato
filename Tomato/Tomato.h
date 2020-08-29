@@ -36,6 +36,8 @@ public:
 	UINT work_interval=25;
 	UINT pause_interval = 5;
 	std::map<CString, int> works;
+	std::map<CString, int>::iterator iter;
+	
 	CTomatoApp();
 
 // Overrides

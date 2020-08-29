@@ -8,6 +8,8 @@
 #include "TomatoDlg.h"
 #include "afxdialogex.h"
 #include "CSetIntervals.h"
+#include "CAddProject.h"
+
 #include <cstring>
 
 #ifdef _DEBUG
@@ -76,6 +78,7 @@ BEGIN_MESSAGE_MAP(CTomatoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &CTomatoDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON1, &CTomatoDlg::OnBnClickedButton1)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON3, &CTomatoDlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -241,4 +244,25 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 	// TODO: Add your message handler code here and/or call default
 
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CTomatoDlg::OnBnClickedButton3()
+{
+	CAddProject dlg;
+	if (dlg.DoModal() == IDOK)
+	{
+		CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
+		if (!dlg.project_name.IsEmpty())
+		{
+			if (!pApp->works.insert({ dlg.project_name,0 }).second)
+				MessageBox(L"Project by that name already exists!");
+			combo.AddString(dlg.project_name);
+			combo.SetCurSel(0);
+		}
+		int x = 5;
+
+	}
+	int y = 6;
+	// TODO: Add your control notification handler code here
 }
