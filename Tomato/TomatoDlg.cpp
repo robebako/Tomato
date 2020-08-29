@@ -183,7 +183,7 @@ HCURSOR CTomatoDlg::OnQueryDragIcon()
 
 void CTomatoDlg::OnBnClickedButton2()
 {
-	if (!timer_on)
+	if (!worksession_on && !timer_on)
 	{
 		CSetIntervals dlg;
 		CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
@@ -206,9 +206,59 @@ void CTomatoDlg::OnBnClickedButton2()
 void CTomatoDlg::OnBnClickedButton1()
 {
 	CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
-	timer_mins = pApp->work_interval;
-	SetTimer(1, 50, 0);
-	timer_on = true;
+
+	if(!timer_on)
+	{
+		if (!worksession_on)
+		{
+			timer_mins = pApp->work_interval;
+			SetTimer(1, 50, 0);
+			timer_on = true;
+			combo.EnableWindow(FALSE);
+			GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP");
+			worksession_on=true;
+		}
+		else
+		{
+			
+		}
+		
+	}
+	else
+	{
+		if (worksession_on)
+		{
+			if (MessageBox(L"Quit-really?", L"Abort session", MB_YESNO | MB_ICONQUESTION) == IDYES)
+			{
+				KillTimer(1);
+				timer_on = false;
+				worksession_on = false;
+				timer_mins = pApp->work_interval;
+				timer_secs = 0;
+				strMin.Format(_T("%d"), timer_mins);
+				strSec.Format(_T("0%d"), timer_secs);
+				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+				timer_edit.SetWindowTextW(m_strTimer);
+				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START");
+			}
+		}
+		else
+		{
+			if (MessageBox(L"Quit-really?", L"Abort session", MB_YESNO | MB_ICONQUESTION) == IDYES)
+			{
+				KillTimer(1);
+				timer_on = false;
+				timer_mins = pApp->work_interval;
+				timer_secs = 0;
+				strMin.Format(_T("%d"), timer_mins);
+				strSec.Format(_T("0%d"), timer_secs);
+				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+				timer_edit.SetWindowTextW(m_strTimer);
+			}
+		}
+
+	}
+	
 }
 
 
@@ -240,17 +290,36 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 	else
 	{
 		//kad istekne timer
+		CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
 		timer_on = false;
-		if( nIDEvent == 1)
+		GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START");
+		if( worksession_on)
 		{
 			KillTimer(1);
 			CString curSelItem;
 			combo.GetLBText(combo.GetCurSel(), curSelItem);
-			CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
 			pApp->works[curSelItem] += pApp->work_interval;
-			MessageBox(L"Work session has ended!", L"Notice");
+			combo.EnableWindow(TRUE);
+			worksession_on = false;
+			if (MessageBox(L"Work session has ended!\nStart pause?", L"Notice", MB_YESNO | MB_ICONQUESTION) == IDYES)
+			{
+				timer_mins = pApp->pause_interval;
+				SetTimer(1, 50, 0);
+				timer_on = true;
+				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP");
+			}
 		}
-		
+		else
+		{
+			KillTimer(1);
+			MessageBox(L"Pause has ended!", L"Notice");
+			timer_mins = pApp->work_interval;
+			timer_secs = 0;
+			strMin.Format(_T("%d"), timer_mins);
+			strSec.Format(_T("0%d"), timer_secs);
+			m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+			timer_edit.SetWindowTextW(m_strTimer);
+		}
 	}
 
 
@@ -262,7 +331,7 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CTomatoDlg::OnBnClickedButton3()
 {
-	if (!timer_on)
+	if (!worksession_on)
 	{
 		CAddProject dlg;
 		if (dlg.DoModal() == IDOK)
