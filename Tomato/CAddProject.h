@@ -22,4 +22,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CString project_name;
+	virtual BOOL OnInitDialog();
 };

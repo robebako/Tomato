@@ -183,19 +183,22 @@ HCURSOR CTomatoDlg::OnQueryDragIcon()
 
 void CTomatoDlg::OnBnClickedButton2()
 {
-	CSetIntervals dlg;
-	CTomatoApp* pApp=(CTomatoApp*)AfxGetApp();
-	dlg.work_interval = pApp->work_interval;
-	dlg.pause_interval = pApp->pause_interval;
-	if(dlg.DoModal() == IDOK) 
+	if (!timer_on)
 	{
-		pApp->work_interval = dlg.work_interval;
-		pApp->pause_interval= dlg.pause_interval;
-		CString mins;
-		mins.Format(_T("%d"), pApp->work_interval);
-		work_min_edit.SetWindowTextW(mins);
-		mins.Format(_T("%d"), pApp->pause_interval);
-		pause_min_edit.SetWindowTextW(mins);
+		CSetIntervals dlg;
+		CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
+		dlg.work_interval = pApp->work_interval;
+		dlg.pause_interval = pApp->pause_interval;
+		if (dlg.DoModal() == IDOK)
+		{
+			pApp->work_interval = dlg.work_interval;
+			pApp->pause_interval = dlg.pause_interval;
+			CString mins;
+			mins.Format(_T("%d"), pApp->work_interval);
+			work_min_edit.SetWindowTextW(mins);
+			mins.Format(_T("%d"), pApp->pause_interval);
+			pause_min_edit.SetWindowTextW(mins);
+		}
 	}
 }
 
@@ -204,7 +207,8 @@ void CTomatoDlg::OnBnClickedButton1()
 {
 	CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
 	timer_mins = pApp->work_interval;
-	SetTimer(1, 100, 0);
+	SetTimer(1, 50, 0);
+	timer_on = true;
 }
 
 
@@ -236,8 +240,17 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 	else
 	{
 		//kad istekne timer
-		KillTimer(1);
-		MessageBox(L"Nesto", L"obavijest");
+		timer_on = false;
+		if( nIDEvent == 1)
+		{
+			KillTimer(1);
+			CString curSelItem;
+			combo.GetLBText(combo.GetCurSel(), curSelItem);
+			CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
+			pApp->works[curSelItem] += pApp->work_interval;
+			MessageBox(L"Work session has ended!", L"Notice");
+		}
+		
 	}
 
 
@@ -249,20 +262,24 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CTomatoDlg::OnBnClickedButton3()
 {
-	CAddProject dlg;
-	if (dlg.DoModal() == IDOK)
+	if (!timer_on)
 	{
-		CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
-		if (!dlg.project_name.IsEmpty())
+		CAddProject dlg;
+		if (dlg.DoModal() == IDOK)
 		{
-			if (!pApp->works.insert({ dlg.project_name,0 }).second)
-				MessageBox(L"Project by that name already exists!");
-			combo.AddString(dlg.project_name);
-			combo.SetCurSel(0);
-		}
-		int x = 5;
+			CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
+			if (!dlg.project_name.IsEmpty())
+			{
+				if (!pApp->works.insert({ dlg.project_name,0 }).second)
+					MessageBox(L"Project by that name already exists!");
+				combo.AddString(dlg.project_name);
+				combo.SetCurSel(0);
+			}
 
+			int x = 5;
+
+		}
+		int y = 6;
 	}
-	int y = 6;
 	// TODO: Add your control notification handler code here
 }

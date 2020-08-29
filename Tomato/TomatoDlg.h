@@ -33,11 +33,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CComboBox combo;
-	afx_msg void OnBnClickedButton2();
 	CEdit work_min_edit, pause_min_edit;
 	int timer_mins, timer_secs=0;
 	CString strMin, strSec, m_strTimer;
 	CEdit timer_edit;
+	bool timer_on = false;
+	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButton3();
