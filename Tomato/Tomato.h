@@ -33,8 +33,8 @@ typedef std::basic_stringstream<TCHAR> tstringstream;
 class CTomatoApp : public CWinApp
 {
 public:
-	int work_interval=25;
-	int pause_interval = 5;
+	UINT work_interval=25;
+	UINT pause_interval = 5;
 	std::map<CString, int> works;
 	CTomatoApp();
 

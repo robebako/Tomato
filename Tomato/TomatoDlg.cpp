@@ -74,6 +74,8 @@ BEGIN_MESSAGE_MAP(CTomatoDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON2, &CTomatoDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON1, &CTomatoDlg::OnBnClickedButton1)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -192,4 +194,51 @@ void CTomatoDlg::OnBnClickedButton2()
 		mins.Format(_T("%d"), pApp->pause_interval);
 		pause_min_edit.SetWindowTextW(mins);
 	}
+}
+
+
+void CTomatoDlg::OnBnClickedButton1()
+{
+	CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
+	timer_mins = pApp->work_interval;
+	SetTimer(1, 100, 0);
+}
+
+
+void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	if (timer_mins != 0 || timer_secs != 0)
+	{
+		if (timer_secs == 0)
+		{
+			--timer_mins;
+			timer_secs = 59;
+		}
+		else
+		{
+			--timer_secs;
+		}
+		if(timer_mins<10)
+			strMin.Format(_T("0%d"), timer_mins);
+		else
+			strMin.Format(_T("%d"), timer_mins);
+		if(timer_secs<10)
+			strSec.Format(_T("0%d"), timer_secs);
+		else
+			strSec.Format(_T("%d"), timer_secs);
+		m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+		timer_edit.SetWindowTextW(m_strTimer);
+	}
+
+	else
+	{
+		//kad istekne timer
+		KillTimer(1);
+		MessageBox(L"Nesto", L"obavijest");
+	}
+
+
+	// TODO: Add your message handler code here and/or call default
+
+	CDialogEx::OnTimer(nIDEvent);
 }

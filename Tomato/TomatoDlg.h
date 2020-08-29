@@ -39,4 +39,6 @@ public:
 	int timer_mins, timer_secs=0;
 	CString strMin, strSec, m_strTimer;
 	CEdit timer_edit;
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
