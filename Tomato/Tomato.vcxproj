@@ -215,6 +215,9 @@
     <None Include="res\Tomato.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\10086520381536062059 (2).ico" />
+    <Image Include="..\..\..\..\Downloads\tomato.ico" />
+    <Image Include="res\icon1.ico" />
     <Image Include="res\Tomato.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

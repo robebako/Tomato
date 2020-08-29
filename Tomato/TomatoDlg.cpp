@@ -127,6 +127,16 @@ BOOL CTomatoDlg::OnInitDialog()
 	m_strTimer.Format(_T("%s : %s"), strMin, strSec);
 	timer_edit.SetWindowTextW(m_strTimer);
 
+	//disable START button if no project in project list
+	if (combo.GetCount() < 1)
+		GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
+	CFont myFont;
+	myFont.CreateFontW(80, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, _T("Arial"));
+	timer_edit.SetFont(&myFont,TRUE);
+
+	HICON hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_ICON1));
+	SetIcon(hIcon, FALSE);
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -215,7 +225,7 @@ void CTomatoDlg::OnBnClickedButton1()
 			SetTimer(1, 50, 0);
 			timer_on = true;
 			combo.EnableWindow(FALSE);
-			GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP");
+			GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP WORKSESSION");
 			worksession_on=true;
 		}
 		else
@@ -239,7 +249,7 @@ void CTomatoDlg::OnBnClickedButton1()
 				strSec.Format(_T("0%d"), timer_secs);
 				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
 				timer_edit.SetWindowTextW(m_strTimer);
-				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START");
+				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START WRK SESSION");
 			}
 		}
 		else
@@ -292,7 +302,7 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 		//kad istekne timer
 		CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
 		timer_on = false;
-		GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START");
+		GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START WORK SESSION");
 		if( worksession_on)
 		{
 			KillTimer(1);
@@ -306,7 +316,7 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 				timer_mins = pApp->pause_interval;
 				SetTimer(1, 50, 0);
 				timer_on = true;
-				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP");
+				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP PAUSE SESSION");
 			}
 		}
 		else
@@ -339,16 +349,13 @@ void CTomatoDlg::OnBnClickedButton3()
 			CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
 			if (!dlg.project_name.IsEmpty())
 			{
+				GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
 				if (!pApp->works.insert({ dlg.project_name,0 }).second)
 					MessageBox(L"Project by that name already exists!");
 				combo.AddString(dlg.project_name);
 				combo.SetCurSel(0);
 			}
-
-			int x = 5;
-
 		}
-		int y = 6;
 	}
 	// TODO: Add your control notification handler code here
 }
