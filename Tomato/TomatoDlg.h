@@ -42,4 +42,5 @@ public:
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButton3();
+	CListCtrl listctrl;
 };

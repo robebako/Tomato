@@ -69,6 +69,7 @@ void CTomatoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT2, pause_min_edit);
 	DDX_Text(pDX, IDC_EDIT3, m_strTimer);
 	DDX_Control(pDX, IDC_EDIT3, timer_edit);
+	DDX_Control(pDX, IDC_LIST1, listctrl);
 }
 
 BEGIN_MESSAGE_MAP(CTomatoDlg, CDialogEx)
@@ -114,6 +115,8 @@ BOOL CTomatoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+
+	//set default values for work minutes edit and pause minutes edit
 	CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
 	CString mins;
 	mins.Format(_T("%d"), pApp->work_interval);
@@ -121,19 +124,27 @@ BOOL CTomatoDlg::OnInitDialog()
 	mins.Format(_T("%d"), pApp->pause_interval);
 	pause_min_edit.SetWindowTextW(mins);
 
+	//set default work minutes for timer display edit
 	timer_mins = pApp->work_interval;
 	strMin.Format(_T("%d"), timer_mins);
 	strSec.Format(_T("0%d"), timer_secs);
 	m_strTimer.Format(_T("%s : %s"), strMin, strSec);
 	timer_edit.SetWindowTextW(m_strTimer);
 
+	//initialize list control
+	listctrl.InsertColumn(0, _T("Project"),LVCFMT_LEFT,120);
+	listctrl.InsertColumn(1, _T("Total minutes worked"), LVCFMT_CENTER,120);
+
 	//disable START button if no project in project list
 	if (combo.GetCount() < 1)
 		GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
+
+	//change display font of timer edit
 	CFont myFont;
 	myFont.CreateFontW(80, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, _T("Arial"));
 	timer_edit.SetFont(&myFont,TRUE);
 
+	//load custom icon
 	HICON hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDI_ICON1));
 	SetIcon(hIcon, FALSE);
 
@@ -208,6 +219,15 @@ void CTomatoDlg::OnBnClickedButton2()
 			work_min_edit.SetWindowTextW(mins);
 			mins.Format(_T("%d"), pApp->pause_interval);
 			pause_min_edit.SetWindowTextW(mins);
+			timer_mins = pApp->work_interval;
+			timer_secs = 0;
+			if (timer_mins < 10)
+				strMin.Format(_T("0%d"), timer_mins);
+			else
+				strMin.Format(_T("%d"), timer_mins);
+			strSec.Format(_T("0%d"), timer_secs);
+			m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+			timer_edit.SetWindowTextW(m_strTimer);
 		}
 	}
 }
@@ -228,11 +248,6 @@ void CTomatoDlg::OnBnClickedButton1()
 			GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP WORKSESSION");
 			worksession_on=true;
 		}
-		else
-		{
-			
-		}
-		
 	}
 	else
 	{
@@ -245,11 +260,15 @@ void CTomatoDlg::OnBnClickedButton1()
 				worksession_on = false;
 				timer_mins = pApp->work_interval;
 				timer_secs = 0;
-				strMin.Format(_T("%d"), timer_mins);
+				if (timer_mins < 10)
+					strMin.Format(_T("0%d"), timer_mins);
+				else
+					strMin.Format(_T("%d"), timer_mins);
 				strSec.Format(_T("0%d"), timer_secs);
 				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
 				timer_edit.SetWindowTextW(m_strTimer);
 				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START WRK SESSION");
+				combo.EnableWindow(TRUE);
 			}
 		}
 		else
@@ -260,7 +279,10 @@ void CTomatoDlg::OnBnClickedButton1()
 				timer_on = false;
 				timer_mins = pApp->work_interval;
 				timer_secs = 0;
-				strMin.Format(_T("%d"), timer_mins);
+				if(timer_mins<10)
+					strMin.Format(_T("0%d"), timer_mins);
+				else
+					strMin.Format(_T("%d"), timer_mins);
 				strSec.Format(_T("0%d"), timer_secs);
 				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
 				timer_edit.SetWindowTextW(m_strTimer);
@@ -299,24 +321,44 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 
 	else
 	{
-		//kad istekne timer
+		//when timer is over
 		CTomatoApp* pApp = (CTomatoApp*)AfxGetApp();
 		timer_on = false;
 		GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START WORK SESSION");
 		if( worksession_on)
 		{
 			KillTimer(1);
+			worksession_on = false;
 			CString curSelItem;
 			combo.GetLBText(combo.GetCurSel(), curSelItem);
 			pApp->works[curSelItem] += pApp->work_interval;
 			combo.EnableWindow(TRUE);
-			worksession_on = false;
+			LVFINDINFO info;
+			int nIndex;
+			//update list control
+			info.flags = LVFI_PARTIAL | LVFI_STRING;
+			info.psz = curSelItem;
+			nIndex = listctrl.FindItem(&info);
+			CString mins;  
+			mins.Format(_T("%d"),pApp->works[curSelItem]);
+			listctrl.SetItemText(nIndex, 1, mins);
 			if (MessageBox(L"Work session has ended!\nStart pause?", L"Notice", MB_YESNO | MB_ICONQUESTION) == IDYES)
 			{
 				timer_mins = pApp->pause_interval;
 				SetTimer(1, 50, 0);
 				timer_on = true;
 				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"STOP PAUSE SESSION");
+			}
+			else
+			{
+				timer_mins = pApp->work_interval;
+				if(timer_mins<10)
+					strMin.Format(_T("0%d"), timer_mins);
+				else
+					strMin.Format(_T("%d"), timer_mins);
+				strSec.Format(_T("0%d"), timer_secs);
+				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+				timer_edit.SetWindowTextW(m_strTimer);
 			}
 		}
 		else
@@ -325,7 +367,10 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 			MessageBox(L"Pause has ended!", L"Notice");
 			timer_mins = pApp->work_interval;
 			timer_secs = 0;
-			strMin.Format(_T("%d"), timer_mins);
+			if (timer_mins < 10)
+				strMin.Format(_T("0%d"), timer_mins);
+			else
+				strMin.Format(_T("%d"), timer_mins);
 			strSec.Format(_T("0%d"), timer_secs);
 			m_strTimer.Format(_T("%s : %s"), strMin, strSec);
 			timer_edit.SetWindowTextW(m_strTimer);
@@ -341,6 +386,7 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CTomatoDlg::OnBnClickedButton3()
 {
+	static int cntr = 0;
 	if (!worksession_on)
 	{
 		CAddProject dlg;
@@ -352,8 +398,16 @@ void CTomatoDlg::OnBnClickedButton3()
 				GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
 				if (!pApp->works.insert({ dlg.project_name,0 }).second)
 					MessageBox(L"Project by that name already exists!");
-				combo.AddString(dlg.project_name);
-				combo.SetCurSel(0);
+				else
+				{
+					combo.AddString(dlg.project_name);
+					combo.SetCurSel(0);
+					CString mins;
+					mins.Format(_T("%d"), 0);
+					listctrl.InsertItem(cntr, dlg.project_name);
+					listctrl.SetItemText(cntr++, 1, mins);
+				}
+				
 			}
 		}
 	}
