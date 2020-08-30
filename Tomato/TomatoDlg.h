@@ -38,7 +38,9 @@ public:
 	CString strMin, strSec, m_strTimer;
 	CEdit timer_edit;
 	bool timer_on = false, worksession_on=false;
-	afx_msg void OnBnClickedButton2();
+	afx_msg
+		void SetTimerMinutes(int mins);
+	void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButton3();

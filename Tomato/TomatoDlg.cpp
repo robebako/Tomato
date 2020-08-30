@@ -132,7 +132,7 @@ BOOL CTomatoDlg::OnInitDialog()
 	timer_edit.SetWindowTextW(m_strTimer);
 
 	//initialize list control
-	listctrl.InsertColumn(0, _T("Project"),LVCFMT_LEFT,120);
+	listctrl.InsertColumn(0, _T("Project"),LVCFMT_LEFT,110);
 	listctrl.InsertColumn(1, _T("Total minutes worked"), LVCFMT_CENTER,120);
 
 	//disable START button if no project in project list
@@ -202,6 +202,18 @@ HCURSOR CTomatoDlg::OnQueryDragIcon()
 
 
 
+void CTomatoDlg::SetTimerMinutes(int timer_mins)
+{
+	timer_secs = 0;
+	if (timer_mins < 10)
+		strMin.Format(_T("0%d"), timer_mins);
+	else
+		strMin.Format(_T("%d"), timer_mins);
+	strSec.Format(_T("0%d"), timer_secs);
+	m_strTimer.Format(_T("%s : %s"), strMin, strSec);
+	timer_edit.SetWindowTextW(m_strTimer);
+}
+
 void CTomatoDlg::OnBnClickedButton2()
 {
 	if (!worksession_on && !timer_on)
@@ -219,15 +231,7 @@ void CTomatoDlg::OnBnClickedButton2()
 			work_min_edit.SetWindowTextW(mins);
 			mins.Format(_T("%d"), pApp->pause_interval);
 			pause_min_edit.SetWindowTextW(mins);
-			timer_mins = pApp->work_interval;
-			timer_secs = 0;
-			if (timer_mins < 10)
-				strMin.Format(_T("0%d"), timer_mins);
-			else
-				strMin.Format(_T("%d"), timer_mins);
-			strSec.Format(_T("0%d"), timer_secs);
-			m_strTimer.Format(_T("%s : %s"), strMin, strSec);
-			timer_edit.SetWindowTextW(m_strTimer);
+			SetTimerMinutes(pApp->work_interval);
 		}
 	}
 }
@@ -277,20 +281,12 @@ void CTomatoDlg::OnBnClickedButton1()
 			{
 				KillTimer(1);
 				timer_on = false;
-				timer_mins = pApp->work_interval;
-				timer_secs = 0;
-				if(timer_mins<10)
-					strMin.Format(_T("0%d"), timer_mins);
-				else
-					strMin.Format(_T("%d"), timer_mins);
-				strSec.Format(_T("0%d"), timer_secs);
-				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
-				timer_edit.SetWindowTextW(m_strTimer);
+				SetTimerMinutes(pApp->work_interval);
+				GetDlgItem(IDC_BUTTON1)->SetWindowTextW(L"START WORK SESSION");
 			}
 		}
 
 	}
-	
 }
 
 
@@ -351,36 +347,16 @@ void CTomatoDlg::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{
-				timer_mins = pApp->work_interval;
-				if(timer_mins<10)
-					strMin.Format(_T("0%d"), timer_mins);
-				else
-					strMin.Format(_T("%d"), timer_mins);
-				strSec.Format(_T("0%d"), timer_secs);
-				m_strTimer.Format(_T("%s : %s"), strMin, strSec);
-				timer_edit.SetWindowTextW(m_strTimer);
+				SetTimerMinutes(pApp->work_interval);
 			}
 		}
 		else
 		{
 			KillTimer(1);
 			MessageBox(L"Pause has ended!", L"Notice");
-			timer_mins = pApp->work_interval;
-			timer_secs = 0;
-			if (timer_mins < 10)
-				strMin.Format(_T("0%d"), timer_mins);
-			else
-				strMin.Format(_T("%d"), timer_mins);
-			strSec.Format(_T("0%d"), timer_secs);
-			m_strTimer.Format(_T("%s : %s"), strMin, strSec);
-			timer_edit.SetWindowTextW(m_strTimer);
+			SetTimerMinutes(pApp->work_interval);
 		}
 	}
-
-
-	// TODO: Add your message handler code here and/or call default
-
-	CDialogEx::OnTimer(nIDEvent);
 }
 
 
@@ -411,5 +387,4 @@ void CTomatoDlg::OnBnClickedButton3()
 			}
 		}
 	}
-	// TODO: Add your control notification handler code here
 }
